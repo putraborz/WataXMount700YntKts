@@ -1,5 +1,5 @@
-
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
 local player = Players.LocalPlayer
 
@@ -11,10 +11,10 @@ local successUrls = {
     "https://raw.githubusercontent.com/putraborz/WataXMount700YntKts/refs/heads/main/Loader/mainmap437.lua"
 }
 
-
 local TIKTOK_LINK = "https://www.tiktok.com/"
 local DISCORD_LINK = "https://discord.gg/"
 
+-- Fungsi ambil data dari URL
 local function fetch(url)
     local ok, res = pcall(function()
         return game:HttpGet(url, true)
@@ -22,6 +22,7 @@ local function fetch(url)
     return ok and res or nil
 end
 
+-- Fungsi verifikasi username
 local function isVerified(uname)
     local vip = fetch(urlVip)
     local sat = fetch(urlSatuan)
@@ -38,51 +39,84 @@ local function isVerified(uname)
         end
         return false
     end
-
     return checkList(vip) or checkList(sat)
 end
 
-
+-- Fungsi notifikasi
 local function notify(title, text, duration)
-    local ok = pcall(function()
+    pcall(function()
         StarterGui:SetCore("SendNotification", {
             Title = title or "Info",
             Text = text or "",
             Duration = duration or 4
         })
     end)
-    if not ok then
-        
-        print(("[%s] %s"):format(title or "Info", text or ""))
-    end
 end
 
-
+-- GUI Utama
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-gui.Name = "WataXLoader"
+gui.Name = "LexLoader"
 gui.ResetOnSpawn = false
 
 local frame = Instance.new("Frame", gui)
 frame.Size = UDim2.new(0, 320, 0, 200)
 frame.Position = UDim2.new(0.5, -160, 0.5, -100)
-frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.BorderSizePixel = 0
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
-Instance.new("UIStroke", frame).Color = Color3.fromRGB(255,255,255)
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 14)
 
+-- 🌈 Garis RGB di tepi
+local stroke = Instance.new("UIStroke", frame)
+stroke.Thickness = 2
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+stroke.LineJoinMode = Enum.LineJoinMode.Round
+task.spawn(function()
+    local hue = 0
+    while task.wait(0.03) do
+        hue = (hue + 1) % 360
+        stroke.Color = Color3.fromHSV(hue / 360, 1, 1)
+    end
+end)
+
+-- Fade-in efek saat GUI muncul
+frame.BackgroundTransparency = 1
+TweenService:Create(frame, TweenInfo.new(0.8, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+
+-- ❌ Tombol close
 local closeBtn = Instance.new("TextButton", frame)
 closeBtn.Size = UDim2.new(0, 30, 0, 30)
 closeBtn.Position = UDim2.new(1, -35, 0, 5)
 closeBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
 closeBtn.Text = "X"
-closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.TextSize = 18
+closeBtn.TextColor3 = Color3.new(1,1,1)
 Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 8)
 closeBtn.MouseButton1Click:Connect(function()
+    TweenService:Create(frame, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
+    task.wait(0.4)
     gui:Destroy()
 end)
 
+-- 🌀 Logo teks RGB “LEXHOST”
+local lexLogo = Instance.new("TextLabel", frame)
+lexLogo.Text = "LEXHOST"
+lexLogo.Font = Enum.Font.GothamBlack
+lexLogo.TextSize = 16
+lexLogo.Position = UDim2.new(1, -100, 0, 8)
+lexLogo.Size = UDim2.new(0, 90, 0, 20)
+lexLogo.BackgroundTransparency = 1
+lexLogo.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+task.spawn(function()
+    local hue = 0
+    while task.wait(0.05) do
+        hue = (hue + 2) % 360
+        lexLogo.TextColor3 = Color3.fromHSV(hue / 360, 1, 1)
+    end
+end)
+
+-- Avatar & Username
 local avatar = Instance.new("ImageLabel", frame)
 avatar.Size = UDim2.new(0, 64, 0, 64)
 avatar.Position = UDim2.new(0, 20, 0, 40)
@@ -107,93 +141,95 @@ status.TextSize = 14
 status.TextColor3 = Color3.fromRGB(255,255,255)
 status.Text = "Klik tombol verifikasi untuk lanjut..."
 
-
+-- Baris tombol
 local btnRow = Instance.new("Frame", frame)
 btnRow.Size = UDim2.new(0.86, 0, 0, 36)
 btnRow.Position = UDim2.new(0.07, 0, 1, -44)
 btnRow.BackgroundTransparency = 1
 
+-- Fungsi animasi tombol hover
+local function animateButton(btn)
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.2), {Size = btn.Size + UDim2.new(0,4,0,4)}):Play()
+    end)
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.2), {Size = btn.Size - UDim2.new(0,4,0,4)}):Play()
+    end)
+end
+
+-- Tombol TikTok
 local tiktokBtn = Instance.new("TextButton", btnRow)
 tiktokBtn.Size = UDim2.new(0.18, 0, 1, 0)
-tiktokBtn.Position = UDim2.new(0, 0, 0, 0)
 tiktokBtn.Text = "TikTok"
 tiktokBtn.Font = Enum.Font.GothamBold
 tiktokBtn.TextSize = 14
-tiktokBtn.TextColor3 = Color3.fromRGB(255,255,255)
-tiktokBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- pinkish
+tiktokBtn.TextColor3 = Color3.new(1,1,1)
+tiktokBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 85)
 Instance.new("UICorner", tiktokBtn).CornerRadius = UDim.new(0, 8)
+animateButton(tiktokBtn)
 
+-- Tombol Verify
 local verifyBtn = Instance.new("TextButton", btnRow)
 verifyBtn.Size = UDim2.new(0.56, 0, 1, 0)
 verifyBtn.Position = UDim2.new(0.22, 0, 0, 0)
 verifyBtn.Text = "Verifikasi"
 verifyBtn.Font = Enum.Font.GothamBold
 verifyBtn.TextSize = 16
-verifyBtn.TextColor3 = Color3.fromRGB(255,255,255)
+verifyBtn.TextColor3 = Color3.new(1,1,1)
 verifyBtn.BackgroundColor3 = Color3.fromRGB(60, 180, 100)
 Instance.new("UICorner", verifyBtn).CornerRadius = UDim.new(0, 8)
+animateButton(verifyBtn)
 
+-- Tombol Discord
 local discordBtn = Instance.new("TextButton", btnRow)
 discordBtn.Size = UDim2.new(0.18, 0, 1, 0)
 discordBtn.Position = UDim2.new(0.82, 0, 0, 0)
-discordBtn.Text = "discord"
+discordBtn.Text = "Discord"
 discordBtn.Font = Enum.Font.GothamBold
 discordBtn.TextSize = 12
-discordBtn.TextColor3 = Color3.fromRGB(255,255,255)
-discordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242) -- bluish
+discordBtn.TextColor3 = Color3.new(1,1,1)
+discordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
 Instance.new("UICorner", discordBtn).CornerRadius = UDim.new(0, 8)
+animateButton(discordBtn)
 
-
-local function copyToClipboard(link)
-    if setclipboard then
-        pcall(setclipboard, link)
-        notify("Lex", "Link disalin ke clipboard", 3)
-        return true
-    else
-        notify("Lex", "Fitur salin tidak tersedia di executor ini", 4)
-        print("Link (copy manual):", link)
-        return false
-    end
-end
-
-
-tiktokBtn.MouseButton1Click:Connect(function()
-    local ok = copyToClipboard(TIKTOK_LINK)
-    if ok then
-        status.Text = "✅ Link TikTok disalin!"
-    else
-        status.Text = "⚠️ Salin TikTok gagal, cek console."
-    end
-    task.delay(2, function() if status and status.Parent then status.Text = "Klik tombol verifikasi untuk lanjut..." end end)
-end)
-
-
-discordBtn.MouseButton1Click:Connect(function()
-    local ok = copyToClipboard(DISCORD_LINK)
-    if ok then
-        status.Text = "✅ Link Discord disalin!"
-    else
-        status.Text = "⚠️ Salin Discord gagal, cek console."
-    end
-    task.delay(2, function() if status and status.Parent then status.Text = "Klik tombol verifikasi untuk lanjut..." end end)
-end)
-
-
+-- Avatar load otomatis
 task.spawn(function()
     local ok, img = pcall(function()
         return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100)
     end)
-    if ok and img then
-        avatar.Image = img
-    else
-        avatar.Image = "rbxassetid://112840507"
-    end
+    if ok and img then avatar.Image = img end
 end)
 
+-- Fungsi salin link
+local function copyToClipboard(link)
+    if setclipboard then
+        setclipboard(link)
+        notify("LEXHOST", "Link disalin ke clipboard", 3)
+    else
+        notify("LEXHOST", "Fitur salin tidak tersedia di executor ini", 4)
+    end
+end
 
+-- Aksi tombol
+tiktokBtn.MouseButton1Click:Connect(function()
+    copyToClipboard(TIKTOK_LINK)
+    status.Text = "✅ Link TikTok disalin!"
+    task.wait(2)
+    status.Text = "Klik tombol verifikasi untuk lanjut..."
+end)
+
+discordBtn.MouseButton1Click:Connect(function()
+    copyToClipboard(DISCORD_LINK)
+    status.Text = "✅ Link Discord disalin!"
+    task.wait(2)
+    status.Text = "Klik tombol verifikasi untuk lanjut..."
+end)
+
+-- Proses verifikasi
 local function doVerify()
-    status.Text = "Memeriksa..."
+    status.Text = "⏳ Memeriksa..."
     verifyBtn.Active = false
+    task.wait(0.3)
     local ok, result = pcall(function()
         return isVerified(player.Name)
     end)
@@ -201,31 +237,24 @@ local function doVerify()
 
     if not ok then
         status.Text = "⚠️ Error saat verifikasi."
-        notify("WataX", "Gagal memeriksa daftar (error).", 4)
+        notify("LEXHOST", "Gagal memeriksa daftar (error).", 4)
         return
     end
 
     if result then
-        status.Text = "✅ KAMU TERDAFTAR SEBAGAI PENGGUNA"
+        status.Text = "✅ Kamu terdaftar sebagai pengguna!"
         _G.WataX_Replay = true
-
-        
         task.wait(0.8)
         for _,url in ipairs(successUrls) do
-            local ok2, err = pcall(function()
-                loadstring(game:HttpGet(url))()
-            end)
-            if not ok2 then
-                warn("Gagal load:", url, err)
-            end
+            pcall(function() loadstring(game:HttpGet(url))() end)
         end
-
-        task.wait(0.4)
-        if gui and gui.Parent then gui:Destroy() end
+        TweenService:Create(frame, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+        task.wait(0.5)
+        gui:Destroy()
     else
-        status.Text = "❌ KAMU TIDAK TERDAFTAR SEBAGAI PENGGUNA"
+        status.Text = "❌ Kamu tidak terdaftar sebagai pengguna!"
         _G.WataX_Replay = false
-        notify("WataX", "❌ Kamu belum terdaftar untuk menggunakan fitur ini.", 4)
+        notify("LEXHOST", "❌ Kamu belum terdaftar.", 4)
     end
 end
 
